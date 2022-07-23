@@ -8,6 +8,8 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class USInteractionComponent;
+class UAnimMontage;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -21,10 +23,10 @@ public:
 protected:
 
 	// 设置全局可见，就是可以在细节面板里看到，UPROPEPTY是宏的意思
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
 
-	// 这个组件是（SpringArm组件
+	// 这个组件是（SpringArm)组件
 	UPROPERTY(visibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
@@ -32,18 +34,35 @@ protected:
 	UPROPERTY(visibleAnywhere)
 	UCameraComponent* CameraComp;
 
+	UPROPERTY(visibleAnywhere)
+	USInteractionComponent* InteractionComp;
+
+	//动画组件
+	UPROPERTY(EditAnywhere,Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	//TimeHandle
+	FTimerHandle TimerHandle_PrimaryAttack;
+
 
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
+
 	void MoveRight(float Value);
+
 	void PrimaryAttack();
+
+	void PrimaryInteract();
+
+	void PrimaryAttack_TimeElapsed();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

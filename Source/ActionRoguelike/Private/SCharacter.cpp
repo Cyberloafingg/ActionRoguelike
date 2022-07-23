@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
+#include "SInteractionComponent.h"
 
 
 // Sets default values
@@ -24,6 +25,10 @@ ASCharacter::ASCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("UCamerComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	//挂载交互组件
+	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
+
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	
@@ -69,6 +74,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 }
 
 void ASCharacter::BeginPlay()
@@ -96,6 +103,26 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
+
+	//添加动画
+	PlayAnimMontage(AttackAnim);
+
+	//添加延迟后激活PrimaryAttack_TimeElapsed函数
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed,0.2f);
+
+}
+
+void ASCharacter::PrimaryInteract()
+{
+	if(InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
+	}
+}
+
+void ASCharacter::PrimaryAttack_TimeElapsed()
+{
+
 	//从骨骼中获取
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 
@@ -103,6 +130,7 @@ void ASCharacter::PrimaryAttack()
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
 
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 }

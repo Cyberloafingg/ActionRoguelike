@@ -2,6 +2,8 @@
 
 
 #include "SExplosiveBarrel.h"
+
+#include "DrawDebugHelpers.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -44,4 +46,13 @@ void ASExplosiveBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 
 	// Logging example to make sure we reached the event
 	UE_LOG(LogTemp, Log, TEXT("OnActorHit reached (ExplosiveBarrel)"));
+	//使用C的格式化输出
+	// %s = string
+	// %f = float
+	// logs: "OtherActor: MyActor_1, at gametime: 124.4"
+	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, at game time: %f"), *GetNameSafe(OtherActor),GetWorld()->TimeSeconds);
+	//将调试信息输出在游戏屏幕上->DrawDebug系列函数
+	//需要用到头文件"DrawDebugHelpers.h"
+	FString CombinedString = FString::Printf(TEXT("Hit at loaction: %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 }
